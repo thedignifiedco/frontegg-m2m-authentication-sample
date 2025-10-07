@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontegg M2M Demo
 
-## Getting Started
+This demo shows a simple Machine-to-Machine (M2M) flow using Frontegg.
 
-First, run the development server:
+## How it works
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- `GET /api/token` (server):
+  - Fetches a vendor token using `FRONTEGG_VENDOR_CLIENT_ID`/`FRONTEGG_VENDOR_SECRET`.
+  - Exchanges it for an API (M2M) token using `FRONTEGG_CLIENT_ID`/`FRONTEGG_API_KEY`.
+  - Caches both vendor and API tokens until expiry.
+- Frontend page calls `/api/token`, then calls `GET /api/private/data` with the API token as `Authorization: Bearer <token>`.
+- `GET /api/private/data` verifies the JWT via tenant JWKS and checks scope from the token `permissions` claim (e.g. contains `read:demo`).
+
+## Prerequisites
+
+- Enable M2M authentication in your Frontegg Vendor Account by following the guide: https://developers.frontegg.com/guides/authentication/m2m/management
+- Generate client credentials (clientId and secret) for a user either via API or Admin Portal:
+  - API: https://developers.frontegg.com/api/identity/personal-tokens/userapitokensv1controller_createtenantapitoken
+  - Admin Portal: https://developers.frontegg.com/guides/admin-portal/personal-modules
+- Configure permissions (RBAC) so your token includes the required permission like `read:demo`: https://developers.frontegg.com/guides/authorization/rbac/permissions
+
+## Required env variables
+
+Create `.env.local` with:
+
+```
+FRONTEGG_API_BASE=https://api.frontegg.com
+# Vendor credentials (to get vendor token)
+FRONTEGG_VENDOR_CLIENT_ID=your_vendor_client_id
+FRONTEGG_VENDOR_SECRET=your_vendor_secret
+
+# API (M2M) credentials used with vendor token to get API token
+FRONTEGG_CLIENT_ID=your_api_client_id
+FRONTEGG_API_KEY=your_api_client_secret
+
+# JWKS config (use your tenant domain as issuer)
+FRONTEGG_JWKS_URL=https://YOUR-TENANT.frontegg.com/.well-known/jwks.json
+FRONTEGG_ISSUER=https://YOUR-TENANT.frontegg.com
+
+# Scope required by /api/private/data
+REQUIRED_SCOPE=read:demo
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+pnpm install
+pnpm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open the app and click "Run Demo".
 
-## Learn More
+## Endpoints
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `GET /api/token` → returns `{ access_token, token }` (API token)
+- `GET /api/private/data` → verifies JWT (tenant JWKS) and requires `REQUIRED_SCOPE` in `permissions`
