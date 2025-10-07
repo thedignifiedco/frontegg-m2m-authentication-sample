@@ -26,12 +26,12 @@ Create `.env.local` with:
 ```
 FRONTEGG_API_BASE=https://api.frontegg.com
 # Vendor credentials (to get vendor token)
-FRONTEGG_VENDOR_CLIENT_ID=your_vendor_client_id
-FRONTEGG_VENDOR_SECRET=your_vendor_secret
+FRONTEGG_CLIENT_ID=your_vendor_client_id
+FRONTEGG_API_KEY=your_vendor_api_key
 
-# API (M2M) credentials used with vendor token to get API token
-FRONTEGG_CLIENT_ID=your_api_client_id
-FRONTEGG_API_KEY=your_api_client_secret
+# User client credentials used with vendor token to get user API token
+FRONTEGG_USER_CLIENT_ID=your_user_client_id
+FRONTEGG_USER_SECRET=your_user_client_secret
 
 # JWKS config (use your tenant domain as issuer)
 FRONTEGG_JWKS_URL=https://YOUR-TENANT.frontegg.com/.well-known/jwks.json

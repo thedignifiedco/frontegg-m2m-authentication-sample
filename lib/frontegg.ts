@@ -100,15 +100,15 @@ function parseApiTokenResponse(json: unknown): { token?: string; accessToken?: s
 export async function getEnvToken(): Promise<string> {
   const base = process.env.FRONTEGG_API_BASE!; // e.g. https://api.frontegg.com/identity/resources
   // Vendor credentials (used to obtain vendor token)
-  const vendorClientId = process.env.FRONTEGG_VENDOR_CLIENT_ID!;
-  const vendorSecret = process.env.FRONTEGG_VENDOR_SECRET!;
-  // API (M2M) credentials (used to exchange vendor token for API token)
-  const apiClientId = process.env.FRONTEGG_CLIENT_ID!;
-  const apiSecret = process.env.FRONTEGG_API_KEY!;
+  const vendorClientId = process.env.FRONTEGG_CLIENT_ID!;
+  const vendorSecret = process.env.FRONTEGG_API_KEY!;
+  // User client credentials (used to exchange vendor token for API token)
+  const apiClientId = process.env.FRONTEGG_USER_CLIENT_ID!;
+  const apiSecret = process.env.FRONTEGG_USER_SECRET!;
 
   if (!base) throw new Error('Missing FRONTEGG_API_BASE');
-  if (!vendorClientId || !vendorSecret) throw new Error('Missing vendor credentials (FRONTEGG_VENDOR_CLIENT_ID/FRONTEGG_VENDOR_SECRET)');
-  if (!apiClientId || !apiSecret) throw new Error('Missing API credentials (FRONTEGG_CLIENT_ID/FRONTEGG_API_KEY)');
+  if (!vendorClientId || !vendorSecret) throw new Error('Missing vendor credentials (FRONTEGG_CLIENT_ID/FRONTEGG_API_KEY)');
+  if (!apiClientId || !apiSecret) throw new Error('Missing user client credentials (FRONTEGG_USER_CLIENT_ID/FRONTEGG_USER_SECRET)');
 
   // if cached and not expired (30s early), return cached
   if (cachedToken && cachedToken.expiresAt - 30_000 > Date.now()) {
